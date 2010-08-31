@@ -5,6 +5,8 @@ import optparse
 import errno
 import ConfigParser
 
+from gitosis import config
+
 log = logging.getLogger('gitosis.app')
 
 class CannotReadConfigError(Exception):
@@ -53,7 +55,7 @@ class App(object):
         return parser
 
     def create_config(self, options):
-        cfg = ConfigParser.RawConfigParser()
+        cfg = config.GitosisConfig()
         return cfg
 
     def read_config(self, options, cfg):

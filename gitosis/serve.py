@@ -14,6 +14,7 @@ from gitosis import gitweb
 from gitosis import gitdaemon
 from gitosis import app
 from gitosis import util
+from gitosis import commands
 
 log = logging.getLogger('gitosis.serve')
 
@@ -64,9 +65,14 @@ def serve(
     try:
         verb, args = command.split(None, 1)
     except ValueError:
-        # all known "git-foo" commands take one argument; improve
-        # if/when needed
-        raise UnknownCommandError()
+        # must be a single command
+        verb = command
+        args = ""
+
+    if verb in commands.COMMAND_LIST:
+        outstr = commands.dispatch(cfg, user, verb, args)
+        sys.stdout.write(outstr)
+        sys.exit(0)
 
     if verb == 'git':
         try:

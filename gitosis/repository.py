@@ -3,6 +3,7 @@ import os
 import re
 import subprocess
 import sys
+import shutil
 
 from gitosis import util
 
@@ -126,6 +127,64 @@ class GitReadTreeError(GitExportError):
 
 class GitCheckoutIndexError(GitExportError):
     """git checkout-index failed"""
+
+class GitCloneError(GitExportError):
+    """git clone failed"""
+
+class GitCommitError(GitExportError):
+    """git commit failed"""
+
+def commit(git_dir, author, msg):
+    env = {}
+    env.update(os.environ)
+    env['GIT_COMMITTER_NAME'] = author
+    env['GIT_COMMITTER_EMAIL'] = author
+    env['GIT_AUTHOR_NAME'] = author
+    env['GIT_AUTHOR_EMAIL'] = author
+    env['EMAIL'] = author
+    returncode = subprocess.call(
+        args=[
+            'git',
+            'commit',
+            '--quiet',
+            '-a',
+            '-m',
+            msg,
+        ],
+        cwd=git_dir,
+        close_fds=True,
+    )
+    if returncode != 0:
+        raise GitCommitError(GitExportError)
+    returncode = subprocess.call(
+        args=[
+            'git',
+            'push',
+            '--quiet',
+        ],
+        cwd=git_dir,
+        close_fds=True,
+    )
+    if returncode != 0:
+        raise GitCommitError(GitExportError)
+
+def clone(git_dir, path):
+    try:
+        shutil.rmtree(path)
+    except:
+        pass
+    returncode = subprocess.call(
+        args=[
+            'git',
+            'clone',
+            '--quiet',
+            git_dir,
+            path,
+        ],
+        close_fds=True,
+    )
+    if returncode != 0:
+        raise GitCloneError(GitExportError)
 
 def export(git_dir, path):
     try:

@@ -13,6 +13,7 @@ from ConfigParser import RawConfigParser
 
 from gitosis import repository
 from gitosis import run_hook
+from gitosis import config
 from gitosis import ssh
 from gitosis import util
 from gitosis import app
@@ -84,7 +85,7 @@ def init_admin_repository(
         cfg_file = StringIO()
         print >>cfg_file, '[gitosis]'
         print >>cfg_file
-        cfg = RawConfigParser()
+        cfg = config.GitosisConfig()
         cfg.add_section('group gitosis-admin')
         cfg.set('group gitosis-admin', 'members', user)
         cfg.set('group gitosis-admin', 'writable', 'gitosis-admin')

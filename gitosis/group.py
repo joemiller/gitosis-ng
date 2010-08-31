@@ -41,7 +41,7 @@ def getMembership(config, user):
     """
     Generate groups ``user`` is member of, according to ``config``
 
-    :type config: RawConfigParser
+    :type config: GitosisConfig
     :type user: str
     :param _seen: internal use only
     """

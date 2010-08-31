@@ -33,6 +33,36 @@ def haveAccess(config, user, mode, path):
             ))
         path = basename
 
+    # if there is a '[repo foo]' section in the config, check its
+    # own access list first before checking the group accesslists
+    try:
+        repo_acl = config.get('repo %s' % basename, mode)
+        log.debug('repo_acl: %(repo_acl)r' % dict(repo_acl=repo_acl))
+    except (NoSectionError, NoOptionError):
+        repo_acl = []
+    else:
+        repo_acl = repo_acl.split()
+
+    if user in repo_acl:
+        mapping = path
+        prefix = None
+        try:
+            prefix = config.get('gitosis', 'repositories')
+        except (NoSectionError, NoOptionError):
+            prefix = 'repositories'
+
+        log.debug(
+            'repo ACL Access ok for %(user)r as %(mode)r on %(path)r'
+            % dict(user=user, mode=mode, path=path))
+
+        return (prefix, mapping)
+    else:
+        log.debug(
+            'no repo ACL for %(user)r as %(mode)r on %(path)r'
+            % dict(user=user, mode=mode, path=path))
+    
+    # now check to see if the user belongs to a group that has access to
+    # this repo
     for groupname in group.getMembership(config=config, user=user):
         try:
             repos = config.get('group %s' % groupname, mode)
