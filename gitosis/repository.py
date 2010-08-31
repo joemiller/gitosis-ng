@@ -160,7 +160,6 @@ def commit(git_dir, author, msg):
         args=[
             'git',
             'push',
-            '--quiet',
         ],
         cwd=git_dir,
         close_fds=True,
