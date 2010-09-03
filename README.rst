@@ -183,6 +183,7 @@ Adding new users
 - Commit and push back to the ``gitosis-ng`` server::
 
     cd gitosis-admin
+    git add keydir/username.pub
     git commit -a -m 'added ssh pubkey for user: username'
     git push
     
