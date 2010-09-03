@@ -1,140 +1,258 @@
 ==========================================================
- ``gitosis`` -- software for hosting ``git`` repositories
+ ``gitosis-ng`` -- software for hosting ``git`` repositories
 ==========================================================
 
 	Manage ``git`` repositories, provide access to them over SSH,
-	with tight access control and not needing shell accounts.
+    manage them over SSH, with tight access control 
+    and not needing shell accounts.
 
-.. note::
+``gitosis-ng`` is a fork of the ``gitosis`` project that adds
+commands that can be sent via SSH by users and administrators to
+work with the ``git`` server.  Commands such as: ``list``, ``add-repo``,
+etc.
 
-	Documentation is still lacking, and non-default configurations
-	(e.g. config file, repositories, installing in a location that
-	is not in ``PATH``) basically have not been tested at all.
-	Basic usage should be very reliable -- the project has been
-	hosting itself for a long time. Any help is welcome.
+I created this fork because I wanted a simple way for my users (developers)
+to be able to list all of the git repositories hosted on the server.
+This quickly morphed into wanting to give users other commands, such as
+adding repos on their own so they did not have to wait for an
+admin to do it.  Then, I realized I could give the same kind of simple
+command-based control to the admins.
 
-``gitosis`` aims to make hosting ``git`` repos easier and safer. It
-manages multiple repositories under one user account, using SSH keys
-to identify users. End users do not need shell accounts on the server,
-they will talk to one shared account that will not let them run
-arbitrary commands.
-
-``gitosis`` is licensed under the GPL, see the file ``COPYING`` for
+``gitosis-ng`` is licensed under the GPL, see the file ``COPYING`` for
 more information.
 
-You can get ``gitosis`` via ``git`` by saying::
+You can get ``gitosis-ng`` via ``git`` by saying::
 
-    git clone git://eagain.net/gitosis
+    git clone git://github.com/joemiller/gitosis-ng
 
 And install it via::
 
     python setup.py install
 
-Though you may want to use e.g. ``--prefix=``. For Debian/Ubuntu
-users, the source is debianized.
 
+Setting it up
+=============
 
-Setting up
-==========
+These directions are specific to CentOS/RHEL 5.x, but the concepts
+simple enough to translate to other platforms.
 
-First, we will create the user that will own the repositories. This is
-usually called ``git``, but any name will work, and you can have more
-than one per system if you really want to. The user does not need a
-password, but does need a valid shell (otherwise, SSH will refuse to
-work). Don't use an existing account unless you know what you're
-doing.
+Setup DAG or EPEL Yum repos
+---------------------------------------------
+We will need some RPMs from the DAG rpmforge and EPEL yum repos.
 
-I usually store ``git`` repositories in the subtree
-``/srv/example.com/git`` (replace ``example.com`` with your own
-domain). You may choose another location. Adjust to suit and run::
+EPEL contains git 1.5, DAG contains git 1.7.  Both should work with gitosis-ng,
+but testing was done with 1.7
 
-	sudo adduser \
-	    --system \
-	    --shell /bin/sh \
-	    --gecos 'git version control' \
-	    --group \
-	    --disabled-password \
-	    --home /srv/example.com/git \
-	    git
+DAG rpmforge -
 
-This command is known to work in Debian and Ubuntu. Your mileage may
-vary.
+	rpm -Uhv http://apt.sw.be/redhat/el5/en/i386/rpmforge/RPMS/rpmforge-release-0.3.6-1.el5.rf.i386.rpm
+	rpm -Uhv http://apt.sw.be/redhat/el5/en/x86_64/rpmforge/RPMS//rpmforge-release-0.3.6-1.el5.rf.x86_64.rpm
 
-You will need an SSH public key to continue. If you don't have one,
-you need to generate one. See the man page for ``ssh-keygen``, and you
-may also be interested in ``ssh-agent``. Create it on your personal
-computer, and protect the *private* key well -- that includes not
-transferring it over the network.
+EPEL -
 
-Next, we need to set things up for this newly-created user. The
-following command will create a ``~/repositories`` that will hold the
-``git`` repositories, a ``~/.gitosis.conf`` that will be a symlink to
-the actual configuration file, and it will add the SSH public key to
-``~/.ssh/authorized_keys`` with a ``command=`` option that restricts
-it to running ``gitosis-serve``. Run::
+	rpm -Uvh http://download.fedora.redhat.com/pub/epel/5/i386/epel-release-5-4.noarch.rpm
 
-	sudo -H -u git gitosis-init <FILENAME.pub
-	# (or just copy-paste the public key when prompted)
+Install git
+--------------
+	yum install git
 
-then just ``git clone git@SERVER:gitosis-admin.git``, and you get a
-repository with SSH keys as ``keys/USER.pub`` and a ``gitosis.conf``
-where you can configure who has access to what.
+Install required dependencies
+------------------------------------------
+	yum install python-setuptools
 
-.. warning::
+Install optional dependencies
+------------------------------------------
+These modules are optional, they provide additional functionality within
+``gitosis-ng``:
 
-	For now, ``gitosis`` uses the ``HOME`` environment variable to
-	locate where to write its files. If you use ``sudo -u``
-	without ``-H``, ``sudo`` will leave the old value of ``HOME``
-	in place, and this will cause trouble. There will be a
-	workaround for that later on, but for now, always remember to
-	use ``-H`` if you're sudoing to the account.
+- syck  - YAML library, provides ``list-yaml`` command
+- simplejson - JSON library, provides ``list-json`` command
 
-You should always edit the configuration file via ``git``. The file
-symlinked to ``~/.gitosis.conf`` on the server will be overwritten
-when pushing changes to the ``gitosis-admin.git`` repository.
+	yum install python-simplejson syck-python
 
-Edit the settings as you wish, commit and push. That's pretty much it!
-Once you push, ``gitosis`` will immediately make your changes take
-effect on the server.
+Download the latest gitosis-ng code
+----------------------------------------------------
+	git clone git://github.com/joemiller/gitosis-ng.git
+
+Install gitosis-ng:
+-------------------------
+	cd gitosis-ng
+	python setup.py install
+
+Create a ‘git’ user and home directory:
+-------------------------------------------------------
+This command creates a user named ``git`` with a home directory at
+``/home/git``.  You may want to store your git repositories to some place
+else, such as ``/srv/git``.
+ 
+	adduser -d /home/git -m -s /bin/bash -c gitosis-ng -r git
+
+Import your public SSH key and initialize gitosis-ng
+--------------------------------------------------------------------------
+Next, we will import our SSH key and initialize the ``gitosis-ng``
+configuration.  Your key will become the first user in the ``gitosis-ng``
+system and a member of the ``gitosis-admin`` group.
+
+	sudo -H -u git gitosis-init < id_rsa.pub
+
+Modify the ``gitosis.conf`` config file
+----------------------------------------------------
+You should setup a few basic options in your ``gitosis.conf`` file as well as
+get familiar with the process.
+
+The ``gitweb=yes`` option is recommend for ``gitosis-ng`` as this will allow
+your git users to ``list`` all repositories that they have either ``readonly``
+or ``writeable`` access to.  This functionality can also be enabled on a
+per-repository basis by placing a ``gitweb=yes`` option in the
+``[repo repo-name]`` section of the ``gitosis.conf`` file.
+
+- First, clone the special ``gitosis-admin.git`` repository from your
+``gitosis-ng``
+server:
+
+	git clone git@YOUR_GIT_SERVER:gitosis-admin.git
+	cd gitosis-admin
+
+- Edit the gitosis.conf file.  In the ``[gitosis]`` section, add::
+	gitweb=yes
+	loglevel=ERROR
+
+- Commit changes and push back to the server::
+	git commit -a -m 'added new variables in global section'
+	git push
+
+Other resources
+-----------------------
+The installation process for ``gitosis-ng`` is basically identical to
+installing ``gitosis``.  Here are some other great resources on
+installing ``gitosis``:
+
+- http://nfocipher.com/index.php?op=ViewArticle&articleId=12&blogId=1
+- http://scie.nti.st/2007/11/14/hosting-git-repositories-the-easy-and-secure-way
 
 
 Managing it
 ===========
 
-To add new users:
+Show available ``gitosis-ng`` commands
+--------------------------------------
 
-- add a ``keys/USER.pub`` file
-- authorize them to read/write repositories as needed (or just
-  authorize the group ``@all``)
+- Send the 'help' command via SSH::
 
-To create new repositories, just authorize writing to them and
-push. It's that simple! For example: let's assume your username is
-``jdoe`` and you want to create a repository ``myproject``.
-In your clone of ``gitosis-admin``, edit ``gitosis.conf`` and add::
+    ssh git@YOUR_GIT_SERVER help
+        add-repo        : Create new repository. Usage: 'add-repo repo_name'
+        help            : Get list of available commands
+        list            : Get detailed list of git repositories
+        list-json       : Get detailed list of repositories in JSON format
+        list-short      : Get simple list of git repositories
+        list-yaml       : Get detailed list of repositories in YAML format
 
-	[group myteam]
-	members = jdoe
-	writable = myproject
+Adding new users
+----------------
 
-Commit that change and push. Then create the initial commit and push
-it::
+- Checkout the special ``gitosis-admin.git`` repo::
+    git clone git@YOUR_GIT_SERVER:gitosis-admin.git
 
-	mkdir myproject
-	cd mypyroject
-	git init
-	git remote add myserver git@MYSERVER:myproject.git
-	# do some work, git add and commit files
-	git push myserver master:refs/heads/master
+- Copy the user's ssh public key to the ``keydir`` directory::
+    cp username.pub gitosis-admin/keydir/
 
-That's it. If you now add others to ``members``, they can use that
-repository too.
+- Commit and push back to the ``gitosis-ng`` server::
+    cd gitosis-admin
+    git commit -a -m 'added ssh pubkey for user: username'
+    git push
+    
+Creating new repositories
+-------------------------
+
+There are actually two ways to create repositories, the ``gitosis``
+way and the ``gitosis-ng`` way.  We'll cover the ``gitosis-ng``
+way here.  See the ``README.orig.rst`` file for the ``gitosis`` way.
+
+Any user may create a repository.  That user will automatically
+be given ``writeable`` access to that repository.  At this time,
+only admins can grant access to other users or groups by
+checking out and modifying the ``gitosis.conf`` file::
+
+    ssh git@git.azdigitalfarm.com add-repo myproject
+        To /home/git/repositories/gitosis-admin.git
+           22c1bd3..a06d3df  master -> master
+        Created repository: myproject
+
+        Next Steps:
+          mkdir myproject
+          cd myproject
+          git init
+          touch README
+          git add README
+          git commit -a -m 'first commit'
+          git remote add origin git@GIT_SERVER_ADDRESS:myproject.git
+          git push origin master
+
+        Existing Git repo?
+          cd myproject
+          git remote add origin git@GIT_SERVER_ADDRESS:myproject.git
+          git push origin master
 
 
-Example configuration
-=====================
+Listing available repositories
+------------------------------
 
-.. include:: example.conf
-   :literal:
+Any user can list repositories that he has been given either ``readonly``
+or ``writeable`` access on::
+
+    ssh git@YOUR_GIT_SERVER list
+        Repository  : myproject.git
+         Initialized: no
+         Your Access: read/write
+         Owner      : jmiller
+         URL        : 
+         Description: 
+
+         Repository  : otherproject.git
+         Initialized: no
+         Your Access: readonly
+         Owner      : bsmith
+         URL        : 
+         Description: 
+
+Granting access to repositories
+-------------------------------
+
+Only admins can grant access to repositories at this time by
+modifying the ``gitosis.conf`` file.
+
+``readonly`` and ``writeable`` (read/write) access can be granted
+to individual users or groups.
+
+Grant access to individual users
+--------------------------------
+
+- Checkout the special ``gitosis-admin.git`` repo::
+    git clone git@YOUR_GIT_SERVER:gitosis-admin.git
+
+- Create a ``[repo myproject]`` section if one does not exist already,
+and grant access to individual users::
+
+    [repo myproject]
+    writeable = jdoe bsmith
+    readonly = rjones
+
+- Commit that change and push.
+
+Grant access to an entire group
+----------------------------------
+
+- Checkout the special ``gitosis-admin.git`` repo
+
+- Create a ``[group groupname]`` section in gitosis.conf, specify
+the members, and grant access to repostories.  Example::
+
+    [group myteam]
+    members = jdoe
+    writable = myproject
+    readonly = otherproject
+
+- Commit that change and push.
 
 
 Using git-daemon
@@ -195,8 +313,7 @@ understanding the relevant documentation.
 Contact
 =======
 
-You can email the author at ``tv@eagain.net``, or hop on
-``irc.freenode.net`` channel ``#git`` and hope for the best.
+You can email the author of ``gitosis-ng`` at ``joeym@joeym.net``.
 
-There will be more, keep an eye on http://eagain.net/ and/or the git
-mailing list.
+You can email the author of ``gitosis`` at ``tv@eagain.net``, or hop on
+``irc.freenode.net`` channel ``#git`` and hope for the best.
