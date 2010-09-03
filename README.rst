@@ -30,14 +30,52 @@ And install it via::
     python setup.py install
 
 
-Setting it up
-=============
+What makes ``gitosis-ng`` different from ``gitosis``?
+=====================================================
+
+Not a whole lot, actually.  ``gitosis`` is a great piece of software
+and all of its functionality still remains.  If you are familiar
+with using ``gitosis``, the transition to ``gitosis-ng`` will
+be trivial.
+
+``gitosis-ng`` extends the functionality of ``gitosis`` by
+adding the following features:
+
+- Allow users and admins to interact with the ``gitosis-ng`` server
+via SSH commands, eg::
+
+    ssh git@GIT_SERVER help
+    ssh git@GIT_SERVER list
+    ssh git@GIT_SERVER list-short
+    ssh git@GIT_SERVER add-repo my-project
+
+- Allow admins to configure ACLs on a per-repository basis by
+specifying "readonly = user1" and "writeable = user2 user3" within
+the "[repo myproject]" section of the ``gitosis.conf`` file.
+
+
+Upgrading from ``gitosis``
+==========================
+
+- Download the latest gitosis-ng code::
+
+	git clone git://github.com/joemiller/gitosis-ng.git
+
+- Install gitosis-ng::
+
+	cd gitosis-ng
+	python setup.py install
+
+That's it.
+
+
+Setting it up from scratch
+==========================
 
 These directions are specific to CentOS/RHEL 5.x, but the concepts
 simple enough to translate to other platforms.
 
-Setup DAG or EPEL Yum repos
----------------------------------------------
+- Setup DAG or EPEL Yum repos
 We will need some RPMs from the DAG rpmforge and EPEL yum repos.
 
 EPEL contains git 1.5, DAG contains git 1.7.  Both should work with gitosis-ng,
@@ -52,21 +90,20 @@ EPEL -
 
 	rpm -Uvh http://download.fedora.redhat.com/pub/epel/5/i386/epel-release-5-4.noarch.rpm
 
-Install git
---------------
+- Install git::
+
 	yum install git
 
-Install required dependencies
-------------------------------------------
+- Install required dependencies::
+
 	yum install python-setuptools
 
-Install optional dependencies
-------------------------------------------
+- Install optional dependencies
 These modules are optional, they provide additional functionality within
 ``gitosis-ng``:
 
 - syck  - YAML library, provides ``list-yaml`` command
-- simplejson - JSON library, provides ``list-json`` command
+- simplejson - JSON library, provides ``list-json`` command::
 
 	yum install python-simplejson syck-python
 
