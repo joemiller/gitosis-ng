@@ -79,48 +79,42 @@ simple enough to translate to other platforms.
 	rpm -Uvh http://download.fedora.redhat.com/pub/epel/5/i386/epel-release-5-4.noarch.rpm
 
 - Install git::
+
 	yum install git
 
-- Install required dependencies::
+- Install python-setuptools::
+
 	yum install python-setuptools
 
-- Install optional dependencies
+- Install syck YAML library (optional)::
 
-    These modules are optional, they provide additional functionality within
-    ``gitosis-ng``:
+    yum install syck-python
 
-        - syck  - YAML library, provides ``list-yaml`` command
-        - simplejson - JSON library, provides ``list-json`` command
+- Install simpleJSON library (optional)::
 
-	yum install python-simplejson syck-python
+    yum install python-simplejson
+    
+- Download the latest gitosis-ng code::
 
-Download the latest gitosis-ng code
-----------------------------------------------------
 	git clone git://github.com/joemiller/gitosis-ng.git
 
-Install gitosis-ng:
--------------------------
+- Install gitosis-ng::
+
 	cd gitosis-ng
 	python setup.py install
 
-Create a ‘git’ user and home directory:
--------------------------------------------------------
-This command creates a user named ``git`` with a home directory at
-``/home/git``.  You may want to store your git repositories to some place
-else, such as ``/srv/git``::
+- Create a 'git' user and home directory ('/home/git'.  Modify to suit your tastes)::
  
 	adduser -d /home/git -m -s /bin/bash -c gitosis-ng -r git
 
-Import your public SSH key and initialize gitosis-ng
---------------------------------------------------------------------------
-Next, we will import our SSH key and initialize the ``gitosis-ng``
-configuration.  Your key will become the first user in the ``gitosis-ng``
-system and a member of the ``gitosis-admin`` group::
+- Next, we will import our SSH key and initialize the ``gitosis-ng``
+  configuration.  Your key will become the first user in the ``gitosis-ng``
+  system and a member of the ``gitosis-admin`` group::
 
 	sudo -H -u git gitosis-init < id_rsa.pub
 
 Modify the ``gitosis.conf`` config file
-----------------------------------------------------
+---------------------------------------
 You should setup a few basic options in your ``gitosis.conf`` file as well as
 get familiar with the process.
 
@@ -136,10 +130,12 @@ per-repository basis by placing a ``gitweb=yes`` option in the
 	cd gitosis-admin
 
 - Edit the gitosis.conf file.  In the ``[gitosis]`` section, add::
+
 	gitweb=yes
 	loglevel=ERROR
 
 - Commit changes and push back to the server::
+
 	git commit -a -m 'added new variables in global section'
 	git push
 
