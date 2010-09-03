@@ -140,6 +140,7 @@ Show available ``gitosis-ng`` commands
 - Send the 'help' command via SSH::
 
     ssh git@YOUR_GIT_SERVER help
+
         add-repo        : Create new repository. Usage: 'add-repo repo_name'
         help            : Get list of available commands
         list            : Get detailed list of git repositories
@@ -177,6 +178,7 @@ only admins can grant access to other users or groups by
 checking out and modifying the ``gitosis.conf`` file::
 
     ssh git@git.azdigitalfarm.com add-repo myproject
+
         To /home/git/repositories/gitosis-admin.git
            22c1bd3..a06d3df  master -> master
         Created repository: myproject
