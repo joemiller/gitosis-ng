@@ -255,7 +255,7 @@ Grant access to individual users
     git clone git@YOUR_GIT_SERVER:gitosis-admin.git
 
 - Create a ``[repo myproject]`` section if one does not exist already,
-and grant access to individual users::
+  and grant access to individual users::
 
     [repo myproject]
     writeable = jdoe bsmith
@@ -269,7 +269,7 @@ Grant access to an entire group
 - Checkout the special ``gitosis-admin.git`` repo
 
 - Create a ``[group groupname]`` section in gitosis.conf, specify
-the members, and grant access to repostories.  Example::
+  the members, and grant access to repostories.  Example::
 
     [group myteam]
     members = jdoe
