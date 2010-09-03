@@ -120,11 +120,14 @@ get familiar with the process.
 
 The ``gitweb=yes`` option is recommend for ``gitosis-ng`` as this will allow
 your git users to ``list`` all repositories that they have either ``readonly``
-or ``writeable`` access to.  This functionality can also be enabled on a
+or ``writeable`` access to.
+
+This functionality can also be enabled on a
 per-repository basis by placing a ``gitweb=yes`` option in the
 ``[repo repo-name]`` section of the ``gitosis.conf`` file.
 
-- First, clone the special ``gitosis-admin.git`` repository from your ``gitosis-ng`` server::
+- First, clone the special ``gitosis-admin.git`` repository from your
+  ``gitosis-ng`` server::
 
 	git clone git@YOUR_GIT_SERVER:gitosis-admin.git
 	cd gitosis-admin
@@ -254,7 +257,7 @@ Grant access to individual users
 
     git clone git@YOUR_GIT_SERVER:gitosis-admin.git
 
-- Create a ``[repo myproject]`` section if one does not exist already,
+- Edit ``gitosis.conf``, create a ``[repo myproject]`` section if one does not exist already,
   and grant access to individual users::
 
     [repo myproject]
@@ -268,7 +271,7 @@ Grant access to an entire group
 
 - Checkout the special ``gitosis-admin.git`` repo
 
-- Create a ``[group groupname]`` section in gitosis.conf, specify
+- Edit ``gitosis.conf``, create a ``[group groupname]`` section, specify
   the members, and grant access to repostories.  Example::
 
     [group myteam]
