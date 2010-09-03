@@ -65,38 +65,32 @@ Setting it up from scratch
 These directions are specific to CentOS/RHEL 5.x, but the concepts
 simple enough to translate to other platforms.
 
-Setup DAG or EPEL Yum repos
----------------------------
-We will need some RPMs from the DAG rpmforge and EPEL yum repos.
+- Setup DAG and EPEL Yum repos.  We will need some RPMs from the DAG rpmforge
+  and EPEL yum repos.  EPEL contains git 1.5, DAG contains git 1.7.  Both
+  should work with gitosis-ng, but testing was done with 1.7
 
-EPEL contains git 1.5, DAG contains git 1.7.  Both should work with gitosis-ng,
-but testing was done with 1.7
+::
 
-DAG rpmforge -
-
+    DAG rpmforge:
 	rpm -Uhv http://apt.sw.be/redhat/el5/en/i386/rpmforge/RPMS/rpmforge-release-0.3.6-1.el5.rf.i386.rpm
 	rpm -Uhv http://apt.sw.be/redhat/el5/en/x86_64/rpmforge/RPMS//rpmforge-release-0.3.6-1.el5.rf.x86_64.rpm
 
-EPEL -
-
+    EPEL:
 	rpm -Uvh http://download.fedora.redhat.com/pub/epel/5/i386/epel-release-5-4.noarch.rpm
 
-Install git
--------------
+- Install git::
 	yum install git
 
-Install required dependencies
------------------------------
-
+- Install required dependencies::
 	yum install python-setuptools
 
-Install optional dependencies
------------------------------
-These modules are optional, they provide additional functionality within
-``gitosis-ng``:
+- Install optional dependencies
 
-- syck  - YAML library, provides ``list-yaml`` command
-- simplejson - JSON library, provides ``list-json`` command
+    These modules are optional, they provide additional functionality within
+    ``gitosis-ng``:
+
+        - syck  - YAML library, provides ``list-yaml`` command
+        - simplejson - JSON library, provides ``list-json`` command
 
 	yum install python-simplejson syck-python
 
