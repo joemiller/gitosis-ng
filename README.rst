@@ -2,14 +2,13 @@
  ``gitosis-ng`` -- software for hosting ``git`` repositories
 ==========================================================
 
-	Manage ``git`` repositories, provide access to them over SSH,
+    Manage ``git`` repositories, provide access to them over SSH,
     manage them over SSH, with tight access control 
     and not needing shell accounts.
 
-``gitosis-ng`` is a fork of the ``gitosis`` project that adds
-commands that can be sent via SSH by users and administrators to
-work with the ``git`` server.  Commands such as: ``list``, ``add-repo``,
-etc.
+``gitosis-ng`` is a fork of the ``gitosis`` project which adds
+additional features to help users and admins interact directly with
+the ``gitosis-ng`` server by sending simple commands via SSH.
 
 I created this fork because I wanted a simple way for my users (developers)
 to be able to list all of the git repositories hosted on the server.
@@ -20,14 +19,6 @@ command-based control to the admins.
 
 ``gitosis-ng`` is licensed under the GPL, see the file ``COPYING`` for
 more information.
-
-You can get ``gitosis-ng`` via ``git`` by saying::
-
-    git clone git://github.com/joemiller/gitosis-ng
-
-And install it via::
-
-    python setup.py install
 
 
 What makes ``gitosis-ng`` different from ``gitosis``?
@@ -41,21 +32,20 @@ be trivial.
 ``gitosis-ng`` extends the functionality of ``gitosis`` by
 adding the following features:
 
-- Allow users and admins to interact with the ``gitosis-ng`` server
-via SSH commands, eg::
+- Allow users and admins to interact with the ``gitosis-ng`` server via SSH commands, eg::
 
     ssh git@GIT_SERVER help
     ssh git@GIT_SERVER list
     ssh git@GIT_SERVER list-short
     ssh git@GIT_SERVER add-repo my-project
 
-- Allow admins to configure ACLs on a per-repository basis by
-specifying "readonly = user1" and "writeable = user2 user3" within
-the "[repo myproject]" section of the ``gitosis.conf`` file.
+- Allow admins to configure ACLs on a per-repository basis by specifying "readonly = user1" and "writeable = user2 user3" within the "[repo myproject]" section of the ``gitosis.conf`` file.
 
 
-Upgrading from ``gitosis``
-==========================
+Upgrading from ``gitosis`` to ``gitosis-ng``
+============================================
+
+- Backup your ~git home directory first!
 
 - Download the latest gitosis-ng code::
 
@@ -66,7 +56,7 @@ Upgrading from ``gitosis``
 	cd gitosis-ng
 	python setup.py install
 
-That's it.
+- That's it.
 
 
 Setting it up from scratch
@@ -75,7 +65,8 @@ Setting it up from scratch
 These directions are specific to CentOS/RHEL 5.x, but the concepts
 simple enough to translate to other platforms.
 
-- Setup DAG or EPEL Yum repos
+Setup DAG or EPEL Yum repos
+---------------------------
 We will need some RPMs from the DAG rpmforge and EPEL yum repos.
 
 EPEL contains git 1.5, DAG contains git 1.7.  Both should work with gitosis-ng,
@@ -90,20 +81,22 @@ EPEL -
 
 	rpm -Uvh http://download.fedora.redhat.com/pub/epel/5/i386/epel-release-5-4.noarch.rpm
 
-- Install git::
-
+Install git
+-------------
 	yum install git
 
-- Install required dependencies::
+Install required dependencies
+-----------------------------
 
 	yum install python-setuptools
 
-- Install optional dependencies
+Install optional dependencies
+-----------------------------
 These modules are optional, they provide additional functionality within
 ``gitosis-ng``:
 
 - syck  - YAML library, provides ``list-yaml`` command
-- simplejson - JSON library, provides ``list-json`` command::
+- simplejson - JSON library, provides ``list-json`` command
 
 	yum install python-simplejson syck-python
 
@@ -120,7 +113,7 @@ Create a ‘git’ user and home directory:
 -------------------------------------------------------
 This command creates a user named ``git`` with a home directory at
 ``/home/git``.  You may want to store your git repositories to some place
-else, such as ``/srv/git``.
+else, such as ``/srv/git``::
  
 	adduser -d /home/git -m -s /bin/bash -c gitosis-ng -r git
 
@@ -128,7 +121,7 @@ Import your public SSH key and initialize gitosis-ng
 --------------------------------------------------------------------------
 Next, we will import our SSH key and initialize the ``gitosis-ng``
 configuration.  Your key will become the first user in the ``gitosis-ng``
-system and a member of the ``gitosis-admin`` group.
+system and a member of the ``gitosis-admin`` group::
 
 	sudo -H -u git gitosis-init < id_rsa.pub
 
@@ -143,9 +136,7 @@ or ``writeable`` access to.  This functionality can also be enabled on a
 per-repository basis by placing a ``gitweb=yes`` option in the
 ``[repo repo-name]`` section of the ``gitosis.conf`` file.
 
-- First, clone the special ``gitosis-admin.git`` repository from your
-``gitosis-ng``
-server:
+- First, clone the special ``gitosis-admin.git`` repository from your ``gitosis-ng`` server::
 
 	git clone git@YOUR_GIT_SERVER:gitosis-admin.git
 	cd gitosis-admin
