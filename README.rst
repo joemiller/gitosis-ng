@@ -151,12 +151,15 @@ Adding new users
 ----------------
 
 - Checkout the special ``gitosis-admin.git`` repo::
+
     git clone git@YOUR_GIT_SERVER:gitosis-admin.git
 
 - Copy the user's ssh public key to the ``keydir`` directory::
+
     cp username.pub gitosis-admin/keydir/
 
 - Commit and push back to the ``gitosis-ng`` server::
+
     cd gitosis-admin
     git commit -a -m 'added ssh pubkey for user: username'
     git push
@@ -228,6 +231,7 @@ Grant access to individual users
 --------------------------------
 
 - Checkout the special ``gitosis-admin.git`` repo::
+
     git clone git@YOUR_GIT_SERVER:gitosis-admin.git
 
 - Create a ``[repo myproject]`` section if one does not exist already,
