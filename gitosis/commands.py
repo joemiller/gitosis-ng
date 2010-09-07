@@ -165,14 +165,12 @@ def get_repo_list(config, user):
 
         has_read = access.haveAccess(config, user, 'readonly', name)
 
-        if has_write == None and has_read == None:
-            log.debug("has neither read nor write!")
-            continue
-
         if has_write:
             acl = "read/write"
         elif has_read:
             acl = "readonly"
+        else:
+            acl = "none"
 
         # get 'owner = ' from [repo foo]
         try:
