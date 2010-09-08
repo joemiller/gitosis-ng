@@ -147,6 +147,7 @@ def commit(git_dir, author, msg):
             'git',
             'commit',
             '--quiet',
+            '--allow-empty',
             '-a',
             '-m',
             msg,
@@ -155,7 +156,7 @@ def commit(git_dir, author, msg):
         close_fds=True,
     )
     if returncode != 0:
-        raise GitCommitError(GitExportError)
+        raise GitCommitError(GitCommitError)
     returncode = subprocess.call(
         args=[
             'git',
@@ -165,7 +166,7 @@ def commit(git_dir, author, msg):
         close_fds=True,
     )
     if returncode != 0:
-        raise GitCommitError(GitExportError)
+        raise GitCommitError(GitCommitError)
 
 def clone(git_dir, path):
     try:

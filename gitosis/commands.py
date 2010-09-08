@@ -49,6 +49,7 @@ COMMAND_LIST = {
     'list-json': "Get detailed list of repositories in JSON format",
     'list-yaml': "Get detailed list of repositories in YAML format",
     'add-repo': "Create new repository. Usage: 'add-repo repo_name'",
+    'set-repo': "Set metadata on a repo.  Usage: 'set-repo repo_name owner \"john smith\"",
 }
 
 def help():
@@ -68,6 +69,8 @@ def dispatch(config, user, command, args):
         return yaml_repo_list(config, user)
     elif command == 'add-repo':
         return add_repo(config, user, args)
+    elif command == 'set-repo':
+        return set_repo(config, user, args)
     elif command == 'help':
         return help()
 
@@ -198,6 +201,37 @@ def get_repo_list(config, user):
                 'description': descr }
     return repos
 
+def set_repo(config, user, args):
+    allowed_keys = ['url', 'owner', 'description']
+
+    try:
+        (repo, remain) = args.split(None,1)
+        (key, val) = remain.split(None,1) 
+    except:
+        return("Usage: set-repo repo key value\n")
+
+    # strip '.git' from repo
+    if repo.endswith('.git'):
+        repo = repo[:-4]
+
+    section = "repo " + repo
+    if not config.has_section(section):
+        return("repository '%s' does not exist.\n" % repo)
+
+    # check that key is allowed.
+    if not key in allowed_keys:
+        return("key '%s' cannot be set.  Available keys: %s\n" % (key, ', '.join(allowed_keys)))
+
+    config.set(section, key, val)
+
+    #XXX: an exception is thrown if setting a key to same value, why?
+
+    try:
+        update_config_file(config, user, repo)
+    except Exception, e:
+        return "Failed to update repository (%s): %s\n" % (repo, e)
+    else:
+        return "Success\n"
 
 def add_repo(config, user, args):
     # strip '.git' from repo
@@ -259,6 +293,8 @@ def update_config_file(config, user, repo):
         msg = "User %s created repository %s" % (user, repo),
         )
     shutil.rmtree(export)
+
+
 
 # TODO:
 # * more commands:
