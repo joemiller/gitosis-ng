@@ -31,7 +31,7 @@
 # joe miller, <joeym@joeym.net>, 8/26/2010
 #
 
-import sys, os, shutil, logging
+import sys, os, shutil, logging, re
 
 from ConfigParser import NoSectionError, NoOptionError
 
@@ -224,8 +224,6 @@ def set_repo(config, user, args):
 
     config.set(section, key, val)
 
-    #XXX: an exception is thrown if setting a key to same value, why?
-
     try:
         update_config_file(config, user, repo)
     except Exception, e:
@@ -234,10 +232,17 @@ def set_repo(config, user, args):
         return "Success\n"
 
 def add_repo(config, user, args):
+    if len(args) == 0:
+        return("Usage: add-repo repo-name\n")
+    
     # strip '.git' from repo
     repo = args
     if repo.endswith('.git'):
         repo = repo[:-4]
+
+    # no whitespace in repo names, please
+    if re.search("\s", repo):
+        return("Invalid repo name ('%s'), no whitespace allowed\n" % repo)
 
     section = "repo " + repo
     if config.has_section(section):
@@ -254,7 +259,7 @@ def add_repo(config, user, args):
     except Exception, e:
         return "Failed to create repository (%s): %s\n" % (repo, e)
     else:
-        msg = "Created repository: %s\n" % repo
+        msg = "\nCreated repository: %s\n" % repo
         msg += "\nNext Steps:\n"
         msg += "  mkdir %s\n" % repo
         msg += "  cd %s\n" % repo
