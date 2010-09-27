@@ -199,7 +199,7 @@ be given ``writeable`` access to that repository.  At this time,
 only admins can grant access to other users or groups by
 checking out and modifying the ``gitosis.conf`` file::
 
-    ssh git@git.azdigitalfarm.com add-repo myproject
+    ssh git@YOUR_GIT_SERVER add-repo myproject
 
         To /home/git/repositories/gitosis-admin.git
            22c1bd3..a06d3df  master -> master
