@@ -1,3 +1,8 @@
+IMPORTANT! This project is no longer maintained. I recommend checking out ``gitolite`` instead,
+which is very similar but has more features and is actively supported. Had I known about gitolite,
+I would have used it instead of writing this (though I'm not sure if it existed at the time).
+
+
 ==========================================================
  ``gitosis-ng`` -- software for hosting ``git`` repositories
 ==========================================================
